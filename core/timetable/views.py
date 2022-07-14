@@ -1,12 +1,23 @@
-from django.shortcuts import render
-from django.http import HttpResponse
-# Create your views here.
+from django.contrib.auth.models import User, Group
+from .models import Appointment
+from rest_framework import viewsets
+from rest_framework import permissions
+from .serializers import UserSerializer, GroupSerializer, AppointmentSerializer
 
-def index(request):
-    return HttpResponse('timetable index')
 
-def client(request):
-    return HttpResponse('timetable client')
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all().order_by('-date_joined')
+    serializer_class = UserSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-def worker(request):
-    return HttpResponse('timetable worker')
+
+class GroupViewSet(viewsets.ModelViewSet):
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class AppointmentViewSet(viewsets.ModelViewSet):
+    queryset = Appointment.objects.all()
+    serializer_class = AppointmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
