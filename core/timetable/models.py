@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from datetime import timedelta, datetime
 
 
 class ProfessionalProfile(models.Model):
@@ -113,12 +114,48 @@ class Schedule(models.Model):
         super().save(*args, **kwargs)
 
 
-# class Appointment(models.Model):
-#     date = models.DateField()
-#     worker_name = models.CharField(max_length=255)
-#     appointment_time = models.TimeField()
-#     procedure = models.CharField(max_length=255)
-#     procedure_duration = models.TimeField()
-#     location = models.CharField(max_length=255)
-#     client_name = models.CharField(max_length=255)
-#     phone = models.CharField(max_length=20)
+class Procedure(models.Model):
+    specialization = models.ForeignKey('Specialization', verbose_name='Специализация', on_delete=models.SET_NULL,
+                                       null=True)
+    name = models.CharField(max_length=100)
+    procedure_duration = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+#class AppointmentTime(models.Model):
+
+
+class Appointment(models.Model):
+    date = models.DateField()
+    worker = models.ForeignKey('Worker', on_delete=models.CASCADE)
+    procedure = models.ForeignKey('Procedure', on_delete=models.CASCADE)
+    location = models.ForeignKey('Location', on_delete=models.CASCADE)
+    appointment_time = models.TimeField()
+    client_name = models.CharField(max_length=255)
+    client_phone = models.CharField(max_length=20)
+    client_email = models.EmailField(max_length=100, verbose_name='E-mail')
+
+    def save(self, *args, **kwargs):
+        worker_work_time_list = list(Schedule.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
+        appointment_time_list = list(Appointment.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
+        procedure = Procedure.objects.get(pk=self.procedure_id)
+
+        new_start_time = datetime.combine(self.date, self.appointment_time)
+        new_end_time = new_start_time + timedelta(minutes=procedure.procedure_duration)
+
+        for app in appointment_time_list:
+            app_start_time = datetime.combine(app.date, app.appointment_time)
+            app_end_time = app_start_time + timedelta(minutes=Procedure.objects.get(pk=app.procedure_id).procedure_duration)
+
+            if (app_start_time < new_start_time < app_end_time) or (app_start_time < new_end_time < app_end_time):
+                raise ValidationError('Время записи не должно попадать в уже имеющуюся запись')
+
+        for wor in worker_work_time_list:
+            wor_start_time = datetime.combine(wor.date, wor.start_work_time)
+            wor_end_time = datetime.combine(wor.date, wor.finish_work_time)
+
+            if (wor_start_time < new_start_time < wor_end_time) or (wor_start_time < new_end_time < wor_end_time):
+                raise ValidationError('Время записи должно попадать в рабочее время специалиста')
+
+        super().save(*args, **kwargs)

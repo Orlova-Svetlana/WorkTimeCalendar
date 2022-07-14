@@ -1,6 +1,5 @@
 from django.contrib import admin
-from .models import Location, Worker, Schedule, ProfessionalProfile, Specialization, LocationWorkTime
-# , Appointment,
+from .models import Location, Worker, Schedule, ProfessionalProfile, Specialization, LocationWorkTime, Procedure, Appointment
 
 
 class LocationAdmin(admin.ModelAdmin):
@@ -38,10 +37,19 @@ class LocationWorkTimeAdmin(admin.ModelAdmin):
     list_display = ['location', 'day_week','start_work_time','finish_work_time','start_break_time','finish_break_time']
 
 
+class ProcedureAdmin(admin.ModelAdmin):
+    list_display = ['specialization', 'name', 'procedure_duration']
+
+
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ['date', 'worker','procedure','location','appointment_time','client_name','client_phone','client_email']
+
+
 admin.site.register(Location, LocationAdmin)
 admin.site.register(Worker, WorkerAdmin)
 admin.site.register(Schedule, ScheduleAdmin)
-# admin.site.register(Appointment)
+admin.site.register(Appointment, AppointmentAdmin)
 admin.site.register(ProfessionalProfile)
 admin.site.register(Specialization, SpecializationAdmin)
 admin.site.register(LocationWorkTime, LocationWorkTimeAdmin)
+admin.site.register(Procedure, ProcedureAdmin)
