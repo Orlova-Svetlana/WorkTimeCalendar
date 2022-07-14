@@ -35,13 +35,13 @@ class SpecializationAdmin(admin.ModelAdmin):
 
 
 class LocationWorkTimeAdmin(admin.ModelAdmin):
-    list_display = ['day_week','start_work_time','finish_work_time','start_break_time','finish_break_time']
+    list_display = ['location', 'day_week','start_work_time','finish_work_time','start_break_time','finish_break_time']
 
 
-admin.site.register(Location)
+admin.site.register(Location, LocationAdmin)
 admin.site.register(Worker, WorkerAdmin)
-admin.site.register(Schedule)
+admin.site.register(Schedule, ScheduleAdmin)
 # admin.site.register(Appointment)
 admin.site.register(ProfessionalProfile)
-admin.site.register(Specialization)
-admin.site.register(LocationWorkTime)
+admin.site.register(Specialization, SpecializationAdmin)
+admin.site.register(LocationWorkTime, LocationWorkTimeAdmin)
