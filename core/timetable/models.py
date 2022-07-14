@@ -27,7 +27,7 @@ class Specialization(models.Model):
 
 
 class LocationWorkTime(models.Model):
-    location = models.ForeignKey('Location', on_delete=models.CASCADE,)
+    location = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name='Локация')
 
     MONDAY = 'MON'
     TUESDAY = 'TUE'
@@ -38,11 +38,11 @@ class LocationWorkTime(models.Model):
     SUNDAY = 'SUN'
     week = [(MONDAY, 'Понедельник'), (TUESDAY, 'Вторник'), (WEDNESDAY, 'Среда'), (THURSDAY, 'Четверг'), (FRIDAY, 'Пятница'),
             (SATURDAY, 'Суббота'), (SUNDAY, 'Воскресенье')]
-    day_week = models.CharField(max_length=3, choices=week)
-    start_work_time = models.TimeField()
-    finish_work_time = models.TimeField()
-    start_break_time = models.TimeField(null=True, blank=True)
-    finish_break_time = models.TimeField(null=True, blank=True)
+    day_week = models.CharField(max_length=3, choices=week, verbose_name='День недели')
+    start_work_time = models.TimeField(verbose_name='Начало рабочего дня')
+    finish_work_time = models.TimeField(verbose_name='Окончание рабочего дня')
+    start_break_time = models.TimeField(null=True, blank=True, verbose_name='Перерыв с')
+    finish_break_time = models.TimeField(null=True, blank=True, verbose_name='Перерыв до')
 
     def __str__(self):
         return str(self.location)
@@ -81,11 +81,11 @@ class Worker(models.Model):
 
 
 class Schedule(models.Model):
-    date = models.DateField()
-    worker = models.ForeignKey('Worker', on_delete=models.CASCADE)
-    location = models.ForeignKey('Location', on_delete=models.CASCADE)
-    start_work_time = models.TimeField()
-    finish_work_time = models.TimeField()
+    date = models.DateField(verbose_name='Дата')
+    worker = models.ForeignKey('Worker', on_delete=models.CASCADE, verbose_name='Ф.И.О.')
+    location = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name='Локация')
+    start_work_time = models.TimeField(verbose_name='Начало рабочего периода')
+    finish_work_time = models.TimeField(verbose_name='Конец рабочего периода')
 
     def __str__(self):
         return str(self.date)
@@ -117,23 +117,21 @@ class Schedule(models.Model):
 class Procedure(models.Model):
     specialization = models.ForeignKey('Specialization', verbose_name='Специализация', on_delete=models.SET_NULL,
                                        null=True)
-    name = models.CharField(max_length=100)
-    procedure_duration = models.IntegerField()
+    name = models.CharField(max_length=100, verbose_name='Процедура')
+    procedure_duration = models.IntegerField(verbose_name='Длительность процедуры в мин')
 
     def __str__(self):
         return self.name
 
-#class AppointmentTime(models.Model):
-
 
 class Appointment(models.Model):
-    date = models.DateField()
-    worker = models.ForeignKey('Worker', on_delete=models.CASCADE)
-    procedure = models.ForeignKey('Procedure', on_delete=models.CASCADE)
-    location = models.ForeignKey('Location', on_delete=models.CASCADE)
-    appointment_time = models.TimeField()
-    client_name = models.CharField(max_length=255)
-    client_phone = models.CharField(max_length=20)
+    date = models.DateField(verbose_name='Дата')
+    worker = models.ForeignKey('Worker', on_delete=models.CASCADE, verbose_name='Ф.И.О. специалиста')
+    procedure = models.ForeignKey('Procedure', on_delete=models.CASCADE, verbose_name='Процедура')
+    location = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name='Локация')
+    appointment_time = models.TimeField(verbose_name='Время записи')
+    client_name = models.CharField(max_length=255, verbose_name='Ф.И.О.')
+    client_phone = models.CharField(max_length=20, verbose_name='Телефон')
     client_email = models.EmailField(max_length=100, verbose_name='E-mail')
 
     def save(self, *args, **kwargs):
