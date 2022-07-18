@@ -103,7 +103,7 @@ class Schedule(models.Model):
             if (self.start_work_time < l.start_work_time) or (self.finish_work_time > l.finish_work_time):
                 raise ValidationError('Время работы выходит за пределы работы локации')
             if l.start_break_time and l.finish_break_time:
-                if (l.start_work_time < self.start_work_time < l.finish_break_time) or (l.start_work_time < self.finish_work_time < l.finish_break_time):
+                if (l.start_break_time < self.start_work_time < l.finish_break_time) or (l.start_break_time < self.finish_work_time < l.finish_break_time):
                     raise ValidationError('Время работы не должно попадать в перерыв локации')
 
         schedules_list = list(Schedule.objects.filter(date=self.date, worker_id=self.worker_id))
