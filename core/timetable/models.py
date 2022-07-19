@@ -90,9 +90,14 @@ class Schedule(models.Model):
     def __str__(self):
         return str(self.date)
 
-    def save(self, *args, **kwargs):
-        # weekday - 0 - 6 = mon -sun
+    # def clean_fields(self, exclude=None):
+    #     pass
+    #
+    # def full_clean(self, exclude=None, validate_unique=True):
+    #     pass
 
+    def clean(self):
+        # weekday - 0 - 6 = mon -sun
         if self.start_work_time >= self.finish_work_time:
             raise ValidationError('Время начала работы должно быть раньше времени окончания работы')
 
@@ -110,8 +115,6 @@ class Schedule(models.Model):
         for sch in schedules_list:
             if (sch.start_work_time < self.start_work_time < sch.finish_work_time) or (sch.start_work_time < self.finish_work_time < sch.finish_work_time):
                 raise ValidationError('Время работы не должно пересекаться с другими рабочими отрезками')
-
-        super().save(*args, **kwargs)
 
 
 class Procedure(models.Model):
@@ -134,8 +137,11 @@ class Appointment(models.Model):
     client_phone = models.CharField(max_length=20, verbose_name='Телефон')
     client_email = models.EmailField(max_length=100, verbose_name='E-mail')
 
-    def save(self, *args, **kwargs):
+    def clean(self):
         worker_work_time_list = list(Schedule.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
+        if not worker_work_time_list:
+            raise ValidationError('Специалист в этот день не работает')
+
         appointment_time_list = list(Appointment.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
         procedure = Procedure.objects.get(pk=self.procedure_id)
 
@@ -153,7 +159,6 @@ class Appointment(models.Model):
             wor_start_time = datetime.combine(wor.date, wor.start_work_time)
             wor_end_time = datetime.combine(wor.date, wor.finish_work_time)
 
-            if (wor_start_time < new_start_time < wor_end_time) or (wor_start_time < new_end_time < wor_end_time):
+            if not (wor_start_time < new_start_time < wor_end_time) or not (wor_start_time < new_end_time < wor_end_time):
                 raise ValidationError('Время записи должно попадать в рабочее время специалиста')
 
-        super().save(*args, **kwargs)
