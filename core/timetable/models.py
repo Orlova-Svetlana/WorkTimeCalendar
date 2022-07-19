@@ -140,9 +140,14 @@ class Appointment(models.Model):
     def clean(self):
         worker_work_time_list = list(Schedule.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
         if not worker_work_time_list:
-            raise ValidationError('Специалист в этот день не работает')
+            raise ValidationError('Специалист в этот день в этой локации не работает')
 
         appointment_time_list = list(Appointment.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
+
+        worker = Worker.objects.filter(pk=self.worker_id, specialization__procedure=self.procedure_id)
+        if not worker:
+            raise ValidationError('Специалист не выполняет выбранную процедуру')
+
         procedure = Procedure.objects.get(pk=self.procedure_id)
 
         new_start_time = datetime.combine(self.date, self.appointment_time)
