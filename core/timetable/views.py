@@ -1,7 +1,8 @@
 from .models import ProfessionalProfile, Specialization, Location, Worker, Schedule, Procedure, Appointment
 from rest_framework import viewsets
 from .serializers import ProfessionalProfileSerializer, SpecializationSerializer, LocationSerializer, WorkerSerializer, \
-    ScheduleSerializer, ProcedureSerializer, AppointmentSerializer, TestSerializer
+    ScheduleSerializer, ProcedureSerializer, AppointmentSerializer\
+    # , TestSerializer
 from datetime import date
 
 
