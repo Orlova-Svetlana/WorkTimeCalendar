@@ -124,7 +124,7 @@ class Procedure(models.Model):
     procedure_duration = models.IntegerField(verbose_name='Длительность процедуры в мин')
 
     def __str__(self):
-        return self.name
+        return f'{self.name} ({str(self.specialization)})'
 
 
 class Appointment(models.Model):
