@@ -14,8 +14,17 @@ clientRouter.register(r'procedures', views.ProcedureViewSet)
 #clientRouter.register(r'test', views.TestViewSet)
 
 
+workerRouter= routers.DefaultRouter()
+workerRouter.register(r'workers', views.WWorkersViewSet)
+workerRouter.register(r'locations', views.WLocationViewSet)
+workerRouter.register(r'schedules', views.WSchedulesViewSet)
+workerRouter.register(r'procedures', views.WProcedureViewSet)
+
+
+
 urlpatterns = [
     # path('api/v1/auth/', include('rest_framework.urls')),
     path('api/v1/client/', include(clientRouter.urls)),
+    path('api/v1/worker/', include(workerRouter.urls)),
     # path('admin/', views.admin_view),
 ]

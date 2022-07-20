@@ -31,8 +31,8 @@ class WorkerSerializer(serializers.ModelSerializer):
 
 
 class ScheduleSerializer(serializers.ModelSerializer):
-    # location = LocationSerializer(read_only=True, many=False)
-    # worker = WorkerSerializer(read_only=True, many=False)
+    location = LocationSerializer(read_only=True, many=False)
+    worker = WorkerSerializer(read_only=True, many=False)
 
     class Meta:
         model = Schedule
