@@ -1,1 +1,1 @@
-export const API_ADDRESS = 'http://localhost:8000/api/v1/client/';
+export const API_ADDRESS = 'http://localhost:7000/api/v1/client/';
