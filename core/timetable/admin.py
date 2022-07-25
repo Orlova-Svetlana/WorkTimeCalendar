@@ -1,12 +1,13 @@
 from django.contrib import admin
-from .models import Location, Worker, Schedule, ProfessionalProfile, Specialization, LocationWorkTime, Procedure, \
-    Appointment
+from .models import Location, Worker, Schedule, ProfessionalProfile, Specialization, LocationWorkTime, Procedure, Appointment
 
 
+@admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = ['name', 'address', 'phone', 'email']
 
 
+@admin.register(Worker)
 class WorkerAdmin(admin.ModelAdmin):
     # list_display = ['name','professional_profile','specialization','phone','email', 'custom_field']
     list_display = ['name', 'professional_profile', 'specialization', 'phone', 'email']
@@ -22,38 +23,31 @@ class WorkerAdmin(admin.ModelAdmin):
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+@admin.register(Schedule)
 class ScheduleAdmin(admin.ModelAdmin):
     list_display = ['date', 'worker', 'location', 'start_work_time', 'finish_work_time']
 
 
+@admin.register(ProfessionalProfile)
 class ProfessionalProfileAdmin(admin.ModelAdmin):
     list_display = ['name']
 
 
+@admin.register(Specialization)
 class SpecializationAdmin(admin.ModelAdmin):
     list_display = ['name', 'professional_profile']
 
 
+@admin.register(LocationWorkTime)
 class LocationWorkTimeAdmin(admin.ModelAdmin):
-    list_display = ['location', 'day_week', 'start_work_time', 'finish_work_time', 'start_break_time',
-                    'finish_break_time']
+    list_display = ['location', 'day_week', 'start_work_time', 'finish_work_time', 'start_break_time', 'finish_break_time']
 
 
+@admin.register(Procedure)
 class ProcedureAdmin(admin.ModelAdmin):
-    list_display = ['specialization', 'name', 'procedure_duration']
+    list_display = ['specialization', 'name', 'duration']
 
 
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ['date', 'worker', 'procedure', 'location', 'appointment_time', 'client_name', 'client_phone',
-                    'client_email']
-
-
-admin.site.register(Location, LocationAdmin)
-admin.site.register(Worker, WorkerAdmin)
-admin.site.register(Schedule, ScheduleAdmin)
-# admin.site.register(Appointment, AppointmentAdmin)
-admin.site.register(ProfessionalProfile, ProfessionalProfileAdmin)
-admin.site.register(Specialization, SpecializationAdmin)
-admin.site.register(LocationWorkTime, LocationWorkTimeAdmin)
-admin.site.register(Procedure, ProcedureAdmin)
+    list_display = ['id', 'procedure', 'schedule', 'appointment_time', 'client_name', 'client_phone','client_email']

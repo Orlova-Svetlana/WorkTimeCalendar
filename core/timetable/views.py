@@ -1,8 +1,7 @@
+import rest_framework.permissions
 from .models import ProfessionalProfile, Specialization, Location, Worker, Schedule, Procedure, Appointment
 from rest_framework import viewsets
-from .serializers import ProfessionalProfileSerializer, SpecializationSerializer, LocationSerializer, WorkerSerializer, \
-    ScheduleSerializer, ProcedureSerializer, AppointmentSerializer\
-    # , TestSerializer
+from .serializers import ProfessionalProfileSerializer, SpecializationSerializer, LocationSerializer, WorkerSerializer, ScheduleSerializer, ProcedureSerializer, CustomScheduleSerializer, AppointmentSerializer
 from datetime import date
 
 
@@ -35,7 +34,6 @@ class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
 class LocationViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = LocationSerializer
     queryset = Location.objects.all()
-
 
     def get_queryset(self):
         filters_dict = {}
@@ -82,16 +80,7 @@ class WorkersViewSet(viewsets.ReadOnlyModelViewSet):
 class SchedulesViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = ScheduleSerializer
     queryset = Schedule.objects.filter(date__gte=date.today())
-
-
-    def get_queryset(self):
-        filters_dict = {'date__gte': date.today()}
-        worker = self.request.query_params.get('worker')
-        if worker:
-            filters_dict['worker'] = worker
-
-        queryset = Schedule.objects.filter(**filters_dict)
-        return queryset
+    filterset_fields = ['worker']
 
 
 class ProcedureViewSet(viewsets.ReadOnlyModelViewSet):
@@ -114,19 +103,22 @@ class ProcedureViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-class AppointmentViewSet(viewsets.ViewSet):
+class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
+    queryset = Appointment.objects.all()
+    # filterset_fields = ['date', 'worker', 'procedure']
+    permission_classes = [rest_framework.permissions.AllowAny]
 
 
-# class TestViewSet(viewsets.ReadOnlyModelViewSet):
-#     serializer_class = TestSerializer
-#     queryset = Worker.objects.all().distinct()
-#     filterset_fields = [
-#         'specialization',
-#         'professional_profile',
-#         'specialization__procedure',
-#         'schedule__location',
-#     ]
+class SchedulesViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = CustomScheduleSerializer
+    queryset = Schedule.objects.filter(date__gte=date.today())
+    filterset_fields = ['worker']
+
+    # def get_queryset(self):
+    #     queryset = super().get_queryset()
+    #         # .filter(date__gte=date.today())
+    #     return queryset
 
 
 # WORKER____________________________________________________________________________________________________________

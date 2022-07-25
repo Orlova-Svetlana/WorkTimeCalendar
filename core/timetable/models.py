@@ -88,7 +88,7 @@ class Schedule(models.Model):
     finish_work_time = models.TimeField(verbose_name='Конец рабочего периода')
 
     def __str__(self):
-        return str(self.date)
+        return f'({str(self.id)}) {str(self.date)} - ({str(self.start_work_time)} - {str(self.finish_work_time)})'
 
     # def clean_fields(self, exclude=None):
     #     pass
@@ -118,52 +118,38 @@ class Schedule(models.Model):
 
 
 class Procedure(models.Model):
-    specialization = models.ForeignKey('Specialization', verbose_name='Специализация', on_delete=models.SET_NULL,
-                                       null=True)
+    specialization = models.ForeignKey('Specialization', verbose_name='Специализация', on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=100, verbose_name='Процедура')
-    procedure_duration = models.IntegerField(verbose_name='Длительность процедуры в мин')
+    duration = models.IntegerField(verbose_name='Длительность процедуры в мин')
 
     def __str__(self):
         return f'{self.name} ({str(self.specialization)})'
 
 
 class Appointment(models.Model):
-    date = models.DateField(verbose_name='Дата')
-    worker = models.ForeignKey('Worker', on_delete=models.CASCADE, verbose_name='Ф.И.О. специалиста')
-    procedure = models.ForeignKey('Procedure', on_delete=models.CASCADE, verbose_name='Процедура')
-    location = models.ForeignKey('Location', on_delete=models.CASCADE, verbose_name='Локация')
+    procedure = models.ForeignKey('Procedure', on_delete=models.PROTECT, verbose_name='Процедура', related_name='appointments')
+    schedule = models.ForeignKey('Schedule', related_name='appointments', on_delete=models.PROTECT)
     appointment_time = models.TimeField(verbose_name='Время записи')
-    client_name = models.CharField(max_length=255, verbose_name='Ф.И.О.')
+    client_name = models.CharField(max_length=255, verbose_name='Ф.И.О. клиента')
     client_phone = models.CharField(max_length=20, verbose_name='Телефон')
     client_email = models.EmailField(max_length=100, verbose_name='E-mail')
 
     def clean(self):
-        worker_work_time_list = list(Schedule.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
-        if not worker_work_time_list:
-            raise ValidationError('Специалист в этот день в этой локации не работает')
 
-        appointment_time_list = list(Appointment.objects.filter(worker=self.worker_id, location=self.location_id, date=self.date))
+        new_start_time = datetime.combine(self.schedule.date, self.appointment_time)
+        new_end_time = new_start_time + timedelta(minutes=self.procedure.duration)
 
-        worker = Worker.objects.filter(pk=self.worker_id, specialization__procedure=self.procedure_id)
-        if not worker:
-            raise ValidationError('Специалист не выполняет выбранную процедуру')
+        schedule_start_work_time = datetime.combine(self.schedule.date, self.schedule.start_work_time)
+        schedule_finish_work_time = datetime.combine(self.schedule.date, self.schedule.finish_work_time)
 
-        procedure = Procedure.objects.get(pk=self.procedure_id)
+        if not (schedule_start_work_time <= new_start_time < schedule_finish_work_time) or not (schedule_start_work_time <= new_end_time < schedule_finish_work_time):
+            raise ValidationError('Время записи должно попадать в рабочее время специалиста')
 
-        new_start_time = datetime.combine(self.date, self.appointment_time)
-        new_end_time = new_start_time + timedelta(minutes=procedure.procedure_duration)
+        if self.schedule.appointments.all():
+            for sa in self.schedule.appointments.all():
+                appointment_start_time = datetime.combine(self.schedule.date, sa.appointment_time)
+                appointment_end_time = appointment_start_time + timedelta(minutes=sa.procedure.duration)
 
-        for app in appointment_time_list:
-            app_start_time = datetime.combine(app.date, app.appointment_time)
-            app_end_time = app_start_time + timedelta(minutes=Procedure.objects.get(pk=app.procedure_id).procedure_duration)
-
-            if (app_start_time < new_start_time < app_end_time) or (app_start_time < new_end_time < app_end_time):
-                raise ValidationError('Время записи не должно попадать в уже имеющуюся запись')
-
-        for wor in worker_work_time_list:
-            wor_start_time = datetime.combine(wor.date, wor.start_work_time)
-            wor_end_time = datetime.combine(wor.date, wor.finish_work_time)
-
-            if not (wor_start_time < new_start_time < wor_end_time) or not (wor_start_time < new_end_time < wor_end_time):
-                raise ValidationError('Время записи должно попадать в рабочее время специалиста')
+                if (appointment_start_time <= new_start_time < appointment_end_time) or (appointment_start_time <= new_end_time < appointment_end_time):
+                    raise ValidationError('Время записи не должно попадать в уже имеющуюся запись')
 
