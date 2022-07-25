@@ -36,3 +36,27 @@
         transform: rotate(360deg);
     }
 }
+
+/*#root .segment-button{*/
+/*    margin*/
+/*}*/
+/*#root .segment-used{*/
+/*    background: #f8eb9b;*/
+/*}*/
+/*#root .segment-empty{*/
+/*    background: #dafcbf;*/
+/*}*/
+/*#root .timebar-wrapper{*/
+/*    width: 100%;*/
+/*    height: 30px;*/
+/*    background: #cccccc;*/
+/*    position: relative;*/
+/*}*/
+/*#root .timebar-wrapper .timebar{*/
+/*    height: 100%;*/
+/*    background: #6a6a6a;*/
+/*    position: absolute;*/
+/*}*/
+/*#root .accordion-button::after{*/
+/*    display: none !important;*/
+/*}*/
