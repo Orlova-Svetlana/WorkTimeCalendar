@@ -5,9 +5,9 @@ import {API_ADDRESS} from "../../constants";
 
 const AppointmentFormModal = ({selectedScheduleId, selectedScheduleDate, selectedSegment, procedureId, procedureName, onClose, onSuccess}) => {
 
-    const [clientFio, setClientFio] = useState('Client 1');
-    const [clientEmail, setClientEmail] = useState('client1@email.com');
-    const [clientPhone, setClientPhone] = useState('1234567890');
+    const [clientFio, setClientFio] = useState('');
+    const [clientEmail, setClientEmail] = useState('');
+    const [clientPhone, setClientPhone] = useState('');
     const [formErrors, setFormErrors] = useState([]);
 
     const onSave = () => {
